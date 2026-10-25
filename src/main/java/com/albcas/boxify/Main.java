@@ -5,40 +5,39 @@ import java.time.LocalDate;
 public class Main {
     static void main() {
 
-        Item libreta = new Item(Item.Size.SMALL, "Libreta de Mates", "");
-        Item guitarra = new Item(Item.Size.BIG, "Fender Telecaster", "Linda");
-        Item fotoVieja = new Item(Item.Size.TINY, "Foto de Eustaquio", "Está en blanco y negro. Es frágil.");
+        Articulo libreta = new Articulo(Articulo.Tamanyo.PEQUEÑO, "Libreta de Mates", "");
+        Articulo guitarra = new Articulo(Articulo.Tamanyo.GRANDE, "Fender Telecaster", "Linda");
+        Articulo fotoVieja = new Articulo(Articulo.Tamanyo.PEQUEÑO, "Foto de Eustaquio", "Está en blanco y negro. Es frágil.");
 
-        guitarra.setPurchaseTime(LocalDate.now());
-        guitarra.setWarrantyMonths(12);
+        guitarra.setFechaCompra(LocalDate.now());
+        guitarra.setMesesGarantia(12);
 
-        libreta.setWarrantyMonths(2);
-        libreta.setPurchaseTime(LocalDate.of(2023, 8, 14));
+        libreta.setMesesGarantia(2);
+        libreta.setFechaCompra(LocalDate.of(2023, 8, 14));
 
-        Inventory inventario = new Inventory();
+        Inventario inventario = new Inventario();
 
-        inventario.addItem(libreta);
-        inventario.addItem(guitarra);
-        inventario.addItem(fotoVieja);
+        inventario.anyadirArticulo(libreta);
+        inventario.anyadirArticulo(guitarra);
+        inventario.anyadirArticulo(fotoVieja);
 
-        System.out.println(inventario.listItems());
+        System.out.println(inventario.listarArticulos());
 
-        inventario.lookupItem(guitarra.getId());
+        inventario.buscarArticulo(guitarra.getId());
 
-        System.out.println(inventario.listItems());
+        System.out.println(inventario.listarArticulos());
 
-        inventario.deleteItem(guitarra);
+        inventario.eliminarArticulo(guitarra);
 
-        System.out.println(inventario.listItems());
+        System.out.println(inventario.listarArticulos());
 
 
 
-        System.out.println("Guitarra"+inventario.lookupItem(guitarra.getId()).getWarrantyExpirationDate()+" expira esa fecha ");
-        System.out.println("Libreta"+inventario.lookupItem(libreta.getId()).getWarrantyExpirationDate()+" expira esa fecha ");
+        System.out.println("Guitarra" + inventario.buscarArticulo(guitarra.getId()).getFechaVencimientoGarantia() + " expira esa fecha ");
+        System.out.println("Libreta" + inventario.buscarArticulo(libreta.getId()).getFechaVencimientoGarantia() + " expira esa fecha ");
 
-        System.out.println("Guitarra sigue en garantia? "+inventario.lookupItem(guitarra.getId()).warrantyIsInForce());
-        System.out.println("Libreta sigue en garantia? "+inventario.lookupItem(libreta.getId()).warrantyIsInForce());
-
+        System.out.println("Guitarra sigue en garantia? " + inventario.buscarArticulo(guitarra.getId()).garantiaEnVigor());
+        System.out.println("Libreta sigue en garantia? " + inventario.buscarArticulo(libreta.getId()).garantiaEnVigor());
 
     }
 }
