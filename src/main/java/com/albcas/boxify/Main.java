@@ -1,13 +1,28 @@
-
 package com.albcas.boxify;
 
+import com.albcas.boxify.persistencia.PersistenciaJson;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         boolean salir = false;
+
+        /* Inicialización y carga de datos */
+        PersistenciaJson persistencia = new PersistenciaJson();
         Inventario inventario = new Inventario();
+
+        try {
+            for (Articulo articulo : persistencia.cargar()) {
+                inventario.anadirArticulo(articulo);
+            }
+        } catch (IOException e) {
+            System.err.println("No se pudo cargar el inventario: " + e.getMessage());
+            return;
+        }
+
         Scanner sc = new Scanner(System.in);
 
         do {
@@ -19,14 +34,15 @@ public class Main {
 
             switch (opc) {
                 case 1:
-                    anadirArticulo(inventario, sc);
+                    if (anadirArticulo(inventario, sc)) {
+                        persistencia.guardar(inventario);
+                    }
                     break;
                 case 2:
                     listarInventario(inventario);
                     break;
                 case 3:
-                    Articulo articuloSeleccionado =
-                            seleccionarArticulo(inventario, sc);
+                    Articulo articuloSeleccionado = seleccionarArticulo(inventario, sc);
 
                     if (articuloSeleccionado == null) {
                         break;
@@ -40,11 +56,15 @@ public class Main {
 
                         switch (opc2) {
                             case 1:
-                                eliminarArticulo(inventario, articuloSeleccionado);
+                                if (eliminarArticulo(inventario, articuloSeleccionado)) {
+                                    persistencia.guardar(inventario);
+                                }
                                 opc2 = 3;
                                 break;
                             case 2:
-                                modificarArticulo(inventario, articuloSeleccionado, sc);
+                                if (modificarArticulo(inventario, articuloSeleccionado, sc)) {
+                                    persistencia.guardar(inventario);
+                                }
                                 break;
                             case 3:
                                 break;
@@ -71,20 +91,23 @@ public class Main {
     }
 
     // Opciones
-    static void anadirArticulo(Inventario inventario, Scanner sc) {
+    static boolean anadirArticulo(Inventario inventario, Scanner sc) {
         System.out.println("Nombre del artículo");
         String nombreArt = sc.nextLine();
 
-        System.out.println("Tamaño del artículo (1.Peq. 2.Medio. 3.Grand. 4.Volum.)");
+        System.out.println("Tamaño del artículo (1.Peq. 2.Medio. 3.Grand. 4.Enorme.)");
         int opcionTamano = leerEntero(sc);
+
 
         Articulo.Tamano[] tamanos = Articulo.Tamano.values();
 
+        // Verificacion
         if (opcionTamano < 1 || opcionTamano > tamanos.length) {
             System.out.println("Seleccione un tamaño válido");
-            return;
+            return false;
         }
 
+        // Asignación de tamaño
         Articulo.Tamano tamanoArt = tamanos[opcionTamano - 1];
 
         System.out.println("Anotaciones extra");
@@ -92,6 +115,8 @@ public class Main {
 
         Articulo articulo = new Articulo(tamanoArt, nombreArt, notasArt);
         inventario.anadirArticulo(articulo);
+
+        return true;
     }
 
     static void listarInventario(Inventario inventario) {
@@ -108,14 +133,12 @@ public class Main {
         System.out.println("Seleccione el artículo por su número");
 
         for (int i = 0; i < inventario.getArticulos().size(); i++) {
-            System.out.println((i + 1) + ". "
-                    + inventario.getArticulos().get(i));
+            System.out.println((i + 1) + ". " + inventario.getArticulos().get(i));
         }
 
         int articuloSelec = leerEntero(sc);
 
-        if (articuloSelec < 1
-                || articuloSelec > inventario.getArticulos().size()) {
+        if (articuloSelec < 1 || articuloSelec > inventario.getArticulos().size()) {
             System.out.println("Seleccione un artículo válido");
             return null;
         }
@@ -124,22 +147,24 @@ public class Main {
     }
 
     /* Menu 2 */
-    static void eliminarArticulo(Inventario inventario, Articulo articulo) {
+    static boolean eliminarArticulo(Inventario inventario, Articulo articulo) {
         if (inventario.buscarArticulo(articulo.getId()) != null) {
             inventario.eliminarArticulo(articulo);
+            return true;
         } else {
-            System.out.println("El artículo no se encontró en el inventario. \nUUID: "
-                    + articulo.getId());
+            System.out.println("El artículo no se encontró en el inventario. \nUUID: " + articulo.getId());
+            return false;
         }
     }
 
-    static void modificarArticulo(
-            Inventario inventario, Articulo articulo, Scanner sc) {
+    static boolean modificarArticulo(Inventario inventario, Articulo articulo, Scanner sc) {
 
+        boolean cambios = false;
         if (inventario.buscarArticulo(articulo.getId()) != null) {
             System.out.println("Modificar nombre? S/N");
 
             if (sc.nextLine().equalsIgnoreCase("s")) {
+                cambios = true;
                 System.out.println("Nuevo nombre:");
                 articulo.setNombre(sc.nextLine()); // cambiar nombre
             }
@@ -147,7 +172,8 @@ public class Main {
             System.out.println("Modificar tamaño? S/N");
 
             if (sc.nextLine().equalsIgnoreCase("s")) {
-                System.out.println("Nuevo Tamaño (1-4):");
+                cambios = true;
+                System.out.println("Nuevo Tamaño (1-5):");
 
                 int opcionTamano = leerEntero(sc);
                 Articulo.Tamano[] tamanos = Articulo.Tamano.values();
@@ -162,20 +188,16 @@ public class Main {
             System.out.println("Modificar notas? S/N");
 
             if (sc.nextLine().equalsIgnoreCase("s")) {
+                cambios = true;
                 System.out.println("Nueva nota");
                 String nuevaNota = sc.nextLine();
 
-                articulo.setNota(
-                        articulo.getNota() == null
-                                || articulo.getNota().isBlank()
-                                ? nuevaNota
-                                : articulo.getNota() + "\n" + nuevaNota
-                ); // Añadir nota
+                articulo.setNota(articulo.getNota() == null || articulo.getNota().isBlank() ? nuevaNota : articulo.getNota() + "\n" + nuevaNota); // Añadir nota
             }
         } else {
-            System.out.println("El artículo no se encontró en el inventario. \nUUID: "
-                    + articulo.getId());
+            System.out.println("El artículo no se encontró en el inventario. \nUUID: " + articulo.getId());
         }
+        return cambios;
     }
 
     // Lectura de números enteros

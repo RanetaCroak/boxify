@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class Articulo {
 
-    private Tamanyo tamanyo;
+    private Tamano tamano;
     private UUID id;
     private String nombre;
     private String nota;
@@ -15,24 +15,29 @@ public class Articulo {
     private BigDecimal precioCompra;
     private int mesesGarantia;
 
-    // Constructor
-    public Articulo(Articulo.Tamanyo tamanyo, String nombre, String nota) {
-        this.tamanyo = tamanyo;
+    // Constructor para artículos nuevos
+    public Articulo(Articulo.Tamano tamano, String nombre, String nota) {
+        this.tamano = tamano;
         this.id = UUID.randomUUID();
         this.nombre = nombre;
         this.nota = nota;
     }
 
-    public enum Tamanyo {
-        PEQUEÑO, // Llaves, memorias USB, tarjetas.
+    // Constructor vacío para Jackson
+    public Articulo() {
+    }
+
+    public enum Tamano {
+        PEQUENO, // Llaves, memorias USB, tarjetas.
         MEDIANO, // Carteras, bolsos, estuches.
         GRANDE,  // Monitores, altavoces, teclados.
         ENORME,  // Ordenadores, objetos de formas inusuales.
         VOLUMINOSO // Extra
-    };
+    }
+
+    ;
 
     // Getters y Setters
-
     public String getCategoria() {
         return categoria;
     }
@@ -65,16 +70,20 @@ public class Articulo {
         this.mesesGarantia = mesesGarantia;
     }
 
-    public Tamanyo getTamanyo() {
-        return tamanyo;
+    public Tamano getTamano() {
+        return tamano;
     }
 
-    public void setTamanyo(Tamanyo tamanyo) {
-        this.tamanyo = tamanyo;
+    public void setTamano(Tamano tamano) {
+        this.tamano = tamano;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -94,14 +103,14 @@ public class Articulo {
     }
 
     // Métodos
-    public LocalDate getFechaVencimientoGarantia(){
+    public LocalDate getFechaVencimientoGarantia() {
         if (this.getFechaCompra() == null || mesesGarantia <= 0) {
             return null;
         }
         return this.getFechaCompra().plusMonths(mesesGarantia);
     }
 
-    public boolean garantiaEnVigor(){
+    public boolean garantiaEnVigor() {
         LocalDate fechaVencimiento = this.getFechaVencimientoGarantia();
         if (fechaVencimiento == null) {
             return false;
@@ -109,4 +118,16 @@ public class Articulo {
         return fechaVencimiento.isAfter(LocalDate.now());
     }
 
+    @Override
+    public String toString() {
+        return "Nombre: " + this.getNombre() +
+                " Tamaño: " + this.getTamano() +
+                " Categoría: " + this.categoria +
+                "\nFecha de compra: " + this.fechaCompra +
+                " Precio de compra: " + this.precioCompra + "€" +
+                " Meses de garantía: " + this.mesesGarantia +
+                "\nInfo garantía: " +
+                " Caduca el " + this.getFechaVencimientoGarantia() +
+                " ¿Garantía en vigor? -> " + this.garantiaEnVigor()+ "\n";
+    }
 }

@@ -47,6 +47,9 @@ build/
 out/
 target/
 
+# Datos locales del inventario
+/data/
+
 # Archivos locales y secretos
 .env
 .env.*
