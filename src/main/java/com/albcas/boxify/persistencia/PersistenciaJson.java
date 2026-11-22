@@ -1,7 +1,7 @@
 package com.albcas.boxify.persistencia;
 
-import com.albcas.boxify.Articulo;
-import com.albcas.boxify.Inventario;
+import com.albcas.boxify.modelo.Articulo;
+import com.albcas.boxify.modelo.Inventario;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 

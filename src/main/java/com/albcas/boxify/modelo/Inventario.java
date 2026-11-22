@@ -1,4 +1,4 @@
-package com.albcas.boxify;
+package com.albcas.boxify.modelo;
 
 import java.util.ArrayList;
 import java.util.List;

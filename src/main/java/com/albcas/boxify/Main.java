@@ -1,5 +1,7 @@
 package com.albcas.boxify;
 
+import com.albcas.boxify.modelo.Articulo;
+import com.albcas.boxify.modelo.Inventario;
 import com.albcas.boxify.persistencia.PersistenciaJson;
 
 import java.io.IOException;
